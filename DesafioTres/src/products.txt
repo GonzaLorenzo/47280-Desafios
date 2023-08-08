@@ -1,0 +1,1 @@
+[{"name": "Lentejas", "category":"Legumbres", "id":1},{"name": "Porotos", "category": "Legumbres", "id":2}, {"name": "Mayonesa", "category": "Aderezos", "id": 3}, {"name": "Rigatti", "category":"Fideos", "id": 4}, {"name": "Spaghetti", "category": "Fideos", "id": 5}]
