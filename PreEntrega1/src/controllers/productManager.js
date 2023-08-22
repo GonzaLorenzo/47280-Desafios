@@ -43,7 +43,7 @@ export class ProductManager
     {
         const products = JSON.parse(await fs.readFile(this.path, 'utf-8'))
         const slicedProds = products.slice(0, productLimit);
-        console.log(slicedProds);
+        //console.log(slicedProds);
         return slicedProds;
     }
 
