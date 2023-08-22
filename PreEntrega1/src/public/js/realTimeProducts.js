@@ -12,3 +12,8 @@ form.addEventListener('submit', (e) =>
 
     e.target.reset()
 })
+
+/* socket.on('productUpdated', () =>
+{
+
+}) */
