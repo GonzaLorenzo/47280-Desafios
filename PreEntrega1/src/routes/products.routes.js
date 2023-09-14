@@ -1,73 +1,125 @@
 import { Router } from 'express'
-import ProductManager from '../controllers/productManager.js';
-
-const productManager = new ProductManager('src/models/products.json')
+import productsModel from '../models/products.models.js';
 
 const routerProd = Router();
 
-routerProd.get('/', async(req,res) =>
+routerProd.get('/', async (req, res) => 
 {
-    const {limit} = req.query
+    const {limit, page, sort, category, status} = req.query
 
-    const products = await productManager.getProducts(limit)
+    let sortOption;
+	sort == 'asc' && (sortOption = 'price');
+	sort == 'desc' && (sortOption = '-price');
 
-    res.status(200).send(products)
-});
+    const options = 
+    {
+		limit: limit || 10,
+		page: page || 1,
+		sort: sortOption || null,
+	};
 
-routerProd.get('/:id', async(req, res) =>
+    const query = {};
+	category && (query.category = category);
+	status && (query.status = status);
+
+    try 
+    {
+		const prods = await productsModel.paginate(query, options);
+
+		res.status(200).send({ resultado: 'OK', message: prods });
+	} 
+    catch (error) 
+    {
+		res.status(400).send({ error: `Error al consultar productos: ${error}` });
+	}
+})
+
+routerProd.get('/:pid', async (req, res) => 
 {
-    const {id} = req.params
-    const prod = await productManager.getProductByID(parseInt(id))
-
-    if(prod)
+    const {pid} = req.params
+    try
     {
-        res.status(200).send(prod)
+        const prod = await productsModel.findById(pid)
+        if(prod)
+        {
+            res.status(200).send({result: 'OK', message: prod})
+        }
+        else
+        {
+            res.status(404).send({result: 'Not Found', message: prod})
+        }        
     }
-    else
+    catch (error)
     {
-        res.status(404).send("No existe.")
+        res.status(400).send({error: `Error al consultar productos: ${error}`})
     }
-});
+})
 
-routerProd.post('/', async(req, res) =>
+routerProd.post('/', async (req, res) => 
 {
-    const conf = await productManager.addProduct(req.body)
-    if(conf)
-    {
-        res.status(200).send("Creado correctamente.")
-    }
-    else
-    {
-        res.status(400).send("Ya existente.")
-    }
-});
+    const {title, description, stock, code, price, category} = req.body
 
+    try
+    {
+        const response = await productsModel.create(
+            {
+                title, description, stock, code, price, category
+            }
+        )
+        if(response)
+        {
+            res.status(200).send({result: 'OK', message: response})
+        }
+    }
+    catch (error)
+    {
+        res.status(400).send({error: `Error al crear producto: ${error}`})
+    }
+})
 
-routerProd.put('/:id', async(req, res) =>
+routerProd.put('/:pid', async (req, res) => 
 {
-    const conf = await productManager.updateProduct(req.params.id, req.body)
-    if(conf)
-    {
-        res.status(200).send("Actualizado correctamente.")
-    }
-    else
-    {
-        res.status(404).send("No encontrado.")
-    }
-});
+    const {pid} = req.params
+    const {title, description, stock, code, price, category, status} = req.body
 
+    try
+    {
+        const response = await productsModel.findByIdAndUpdate(pid, {title, description, stock, code, price, category, status})
+        if(response)
+        {
+            res.status(200).send({result: 'OK', message: response})
+        }
+        else
+        {
+            res.status(404).send({result: 'Not Found', message: response})
+        } 
+    }
+    catch (error)
+    {
+        res.status(400).send({error: `Error al actualizar producto: ${error}`})
+    }
+})
 
-routerProd.delete('/:id', async(req, res) =>
+routerProd.delete('/:pid', async (req, res) => 
 {
-    const conf = await productManager.deleteProduct(req.params.id)
-    if(conf)
+    const {pid} = req.params
+
+    try
     {
-        res.status(200).send("Eliminado correctamente.")
+        const response = await productsModel.findByIdAndDelete(pid)
+        if(response)
+        {
+            res.status(200).send({result: 'OK', message: response})
+        }
+        else
+        {
+            res.status(404).send({result: 'Not Found', message: response})
+        } 
     }
-    else
+    catch (error)
     {
-        res.status(404).send("No encontrado.")
+        res.status(400).send({error: `Error al eliminar producto: ${error}`})
     }
-});
+})
 
 export default routerProd;

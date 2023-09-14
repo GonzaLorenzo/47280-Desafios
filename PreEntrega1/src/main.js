@@ -1,16 +1,18 @@
+import 'dotenv/config'
+
 import express from 'express'
+import mongoose from 'mongoose';
 import {engine} from 'express-handlebars'
 import routerProd from './routes/products.routes.js'
-import ProductManager from './controllers/productManager.js';
 import routerCart from './routes/carts.routes.js'
 import { __dirname } from './path.js'
 import {Server} from 'socket.io'
 import path from 'path'
+import productsModel from './models/products.models.js';
+import cartModel from './models/carts.models.js';
 
 const PORT = 8080
 const app = express()
-
-const productManager = new ProductManager('src/models/products.json')
 
 //Server
 const server = app.listen(PORT, () =>
@@ -28,13 +30,17 @@ app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
 app.set('views', path.resolve(__dirname, './views'))
 
+mongoose.connect(process.env.MONGO_URL)
+.then(() => console.log("BDD conectada"))
+.catch((error => console.log("Error en conexion con MongoDB ATLAS: ", error)))
+
 //Socket.io
 io.on("connection", (socket) =>
 {
     console.log("Conexion con Socket.io")
-    socket.on('newProduct', (product) =>
+    socket.on('newProduct', async (product) =>
     {
-        productManager.addProduct(product)
+        await productsModel.create(product)
         //io.emit('productUpdated');
     })
 })
@@ -47,26 +53,20 @@ app.use('/api/carts', routerCart)
 console.log(path.join(__dirname, '/public'))
 
 app.get('/static', async(req, res) =>
-{
-    const prods = await productManager.getProducts()
-    
+{   
     res.render("home", 
     {
         rutaCSS: "home",
         rutaJS: "home",
-        products: prods
     })
 })
 
 app.get('/static/realTimeProducts', async(req, res) =>
 {
-    const prods = await productManager.getProducts()
-
     res.render("realTimeProducts",
     {
         rutaCSS: "realTimeProducts",
         rutaJS: "realTimeProducts",
-        products: prods
     })
 })
 
