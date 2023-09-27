@@ -15,6 +15,7 @@ import MongoStore from 'connect-mongo';
 import path from 'path'
 import productsModel from './models/products.models.js';
 import cartModel from './models/carts.models.js';
+import userModel from './models/users.models.js';
 
 const PORT = 8080
 const app = express()
@@ -65,14 +66,20 @@ io.on("connection", (socket) =>
         //io.emit('productUpdated');
     })
 
-    socket.on('submit login', async user => 
+    socket.on('submitLogin', async (userData) =>
     {
-		const { email } = user;
-	});
+        await userModel.create(userData)
+    })
+
+    socket.on('submitRegister', async (userData) =>
+    {
+        await userModel.create(userData)
+    })
 })
 
 //Routes
 app.use('/static', express.static(__dirname + '/public'))
+app.use('/static/login', express.static(path.join(__dirname, '/public')))
 app.use('/api/products', routerProd)
 app.use('/api/carts', routerCart)
 app.use('/api/users', routerUser)
@@ -111,6 +118,14 @@ app.get('/static/login', async(req, res) =>
     res.render("login",
     {
         rutaJS: "login",
+    })
+})
+
+app.get('/static/register', async(req, res) =>
+{
+    res.render("register",
+    {
+        rutaJS: "register",
     })
 })
 

@@ -1,10 +1,10 @@
-const socket = io();
+const socket = io()
 
-const form = document.querySelector('formLogin');
+const form = document.getElementById('formRegister')
 
 form.addEventListener('submit', event => {
 	event.preventDefault();
 	const dataForm = new FormData(event.target);
 	const userData = Object.fromEntries(dataForm);
-	socket.emit('submitLogin', userData);
+	socket.emit('submitRegister', userData);
 });
