@@ -14,7 +14,7 @@ const initializePassport = () =>
 
             try
             {
-                const user = await userModel.findOne({ email:email })
+                const user = await userModel.findOne({ email:username })
 
                 //Ya existe el usuario
                 if(user)
@@ -109,7 +109,7 @@ const initializePassport = () =>
         done(null, user._id)
     })
 
-    passport.deserializeUser(async(id, donde) =>
+    passport.deserializeUser(async(id, done) =>
     {
         const user = await userModel.findById(id)
         done(null, user)

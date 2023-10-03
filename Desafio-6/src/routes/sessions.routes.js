@@ -102,10 +102,11 @@ routerSession.get('/githubSession', passport.authenticate('github'), async (req,
 
 routerSession.post('/logout', (req, res) =>
 {
-    // if(req.session.login)
+    if(req.session)
     {
         req.session.destroy()
     }
+
     res.status(200).send({result: 'Login eliminado'})
 })
 
