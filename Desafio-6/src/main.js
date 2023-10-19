@@ -6,18 +6,15 @@ import initializePassport from './config/passport.js';
 import session from 'express-session';
 import mongoose from 'mongoose';
 import {engine} from 'express-handlebars'
-import routerProd from './routes/products.routes.js'
-import routerCart from './routes/carts.routes.js'
-import routerUser from './routes/users.routes.js';
-import routerSession from './routes/sessions.routes.js';
+import router from './routes/index.routes.js';
 import { __dirname } from './path.js'
 import {Server} from 'socket.io'
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import path from 'path'
 import productsModel from './models/products.models.js';
-import cartModel from './models/carts.models.js';
 import userModel from './models/users.models.js';
+import messageModel from './models/messages.models.js';
 
 const PORT = 8080
 const app = express()
@@ -32,7 +29,7 @@ const io = new Server(server)
 
 //Middlewares
 app.use(express.json())
-app.use(cookieParser(process.env.SESSION_SECRET))
+app.use(cookieParser(process.env.JWT_SECRET))
 app.use(session(
     {
         store: MongoStore.create(
@@ -85,10 +82,8 @@ io.on("connection", (socket) =>
 //Routes
 app.use('/static', express.static(__dirname + '/public'))
 app.use('/static/login', express.static(path.join(__dirname, '/public')))
-app.use('/api/products', routerProd)
-app.use('/api/carts', routerCart)
-app.use('/api/users', routerUser)
-app.use('/api/sessions', routerSession)
+
+app.use('/', router)
 
 console.log(path.join(__dirname, '/public'))
 
