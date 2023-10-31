@@ -1,9 +1,11 @@
+import 'dotenv/config'
 import local from 'passport-local'
 import passport from 'passport'
 import jwt from 'passport-jwt'
 import GithubStrategy from 'passport-github2'
 import userModel from '../models/users.models.js'
 import { createHash, validatePassword } from '../utils/bcrypt.js'
+import cartModel from '../models/carts.models.js'
 
 const LocalStrategy = local.Strategy
 const JWTStrategy = jwt.Strategy
@@ -58,6 +60,7 @@ const initializePassport = () =>
                         password: hashPassword
                     }
                 )
+                req.user = createdUser
                 return done(null, createdUser)
             }
             catch (error)

@@ -1,5 +1,6 @@
 import cartModel from "../models/carts.models.js";
 import productsModel from "../models/products.models.js";
+import userModel from "../models/users.models.js";
 
 const getCarts = async (req, res) => 
 {
@@ -65,17 +66,29 @@ const putProductToCart = async (req, res) =>
 			return false
 		}
 
+		if (product.stock === 0) 
+		{
+			console.log(product.stock);
+			res.status(400).send({ error: 'No hay stock' });
+		}
+
 		if (cart) 
         {
 			const productExists = cart.products.find(prod => prod.id_prod == pid)
-            if(productExists)
-            {
-                productExists.quantity++
-            }
-            else
-            {
-                cart.products.push({ id_prod: product._id, quantity: 1 })
-            }
+
+            if (!productExists) 
+			{
+				cart.products.push({ id_prod: product._id, quantity: 1 })
+			} 
+			else if (productExists.quantity < product.stock) 
+			{
+				productExists.quantity++
+			} 
+			else 
+			{
+				return res.status(400).send({ error: 'No hay stock' })
+			}
+
 			await cart.save()
 			res.status(200).send({ resultado: 'OK', message: cart })
 		}
@@ -94,6 +107,13 @@ const putQuantity = async (req, res) =>
 {
 	const { cid, pid } = req.params
 	const { quantity } = req.body
+
+	const product = await productModel.findById(pid);
+
+	if (product.stock < productExists.quantity + quantity) 
+	{
+		res.status(400).send({ error: 'No hay stock' })
+	}
 
 	try 
     {
@@ -126,36 +146,40 @@ const putQuantity = async (req, res) =>
 
 const putProductsToCart = async (req, res) => 
 {
-	const { cid, pid } = req.params
+	const { cid } = req.params;
+	const { updatedProducts } = req.body;
 
 	try 
     {
 		const cart = await cartModel.findById(cid)
-		const product = await productsModel.findById(pid)
+		
+		updatedProducts.forEach(prod => 
+		{
+			const productExists = cart.products.find(cartProd => cartProd.id_prod == prod.id_prod)
 
-		if (!product) 
-        {
-			res.status(404).send({ resultado: 'Product Not Found', message: product })
-			return false
-		}
+			if (productExists) 
+			{
+				productExists.quantity += prod.quantity
+			} 
+			else 
+			{
+				cart.products.push(prod)
+			}
+		})
 
-		if (cart) 
-        {
-			const productExists = cart.products.find(prod => prod.id_prod == pid)
-			productExists
-				? productExists.quantity++
-				: cart.products.push({ id_prod: product._id, quantity: 1 })
-			await cart.save()
+		await cart.save();
+		if(cart)
+		{
 			res.status(200).send({ resultado: 'OK', message: cart })
-		} 
-        else 
-        {
-			res.status(404).send({ resultado: 'Cart Not Found', message: cart })
+		}
+		else
+		{
+			res.status(404).send({ resultado: 'Not Found', message: cart })
 		}
 	} 
     catch (error) 
     {
-		res.status(400).send({ error: `Error al crear producto: ${error}` })
+		res.status(400).send({ error: `Error al agregar productos: ${error}` })
 	}
 }
 
@@ -215,6 +239,45 @@ const deleteProductFromCart = async (req, res) =>
 	}
 }
 
+const purchaseCart = async (req, res) => 
+{
+	const { cid } = req.params
+	try
+	{
+		const cart = await cartModel.findById(cid)
+		const products = await productModel.find()
+
+		if (cart)
+		{
+			const user = await userModel.find({ cart: cart._id })
+			const email = user[0].email
+			let amount = 0
+			const purchasedItems = []
+			cart.products.forEach(async item => 
+				{
+					const product = products.find(prod => prod._id == item.id_prod.toString())
+					if (product.stock >= item.quantity) 
+					{
+						amount += product.price * item.quantity
+						product.stock -= item.quantity
+						await product.save()
+						purchasedItems.push(product.title)
+					}
+				}
+			)
+			await cartModel.findByIdAndUpdate(cid, { products: [] })
+			res.redirect(`http://localhost:8080/api/tickets/create?amount=${amount}&email=${email}`)
+		} else {
+			res.status(404).send({ resultado: 'Not Found', message: cart })
+		}
+	}
+	catch (error) 
+	{
+		res.status(400).send({ error: `Error al consultar carrito: ${error}`})
+	}
+}
+
+
 const cartsController = 
 {
 	getCarts,
@@ -225,6 +288,7 @@ const cartsController =
 	putQuantity,
 	deleteCart,
 	deleteProductFromCart,
+	purchaseCart
 }
 
 export default cartsController

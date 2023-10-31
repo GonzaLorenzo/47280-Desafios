@@ -11,7 +11,7 @@ console.log(generateToken)
 
 export const authToken = (req, res, next) =>
 {
-    const authHeader = req.headers.Authorization
+    const authHeader = req.cookies.jwtCookie
     if(!authHeader)
     {
         return res.status(401).send({error: 'Usuario no autenticado'})

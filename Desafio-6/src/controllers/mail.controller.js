@@ -1,3 +1,4 @@
+import 'dotenv/config.js'
 import nodemailer from 'nodemailer';
 import { __dirname } from '../path.js';
 

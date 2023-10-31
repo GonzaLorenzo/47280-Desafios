@@ -6,4 +6,4 @@ const routerUser = Router()
 
 routerUser.post('/', passport.authenticate('register'), postUser)
 
-export default routerUser;
+export default routerUser
