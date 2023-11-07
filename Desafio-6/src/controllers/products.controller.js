@@ -1,4 +1,7 @@
 import productsModel from "../models/products.models.js";
+import { generateProductErrorInfo } from "../services/errors/info.js";
+import CustomError from "../services/errors/CustomError.js";
+import EErrors from "../services/errors/enum.js";
 
 const getProducts = async (req, res) => 
 {
@@ -58,6 +61,27 @@ const getProduct = async (req, res) =>
 const postProduct = async (req, res) => 
 {
 	const { title, description, code, price, stock, category } = req.body
+
+	if(!title || !description || !code || !price || !stock || !category)
+	{
+		CustomError.createError(
+			{
+				name: 'Product creation error.',
+				cause: generateProductErrorInfo(
+					{
+						title,
+						description,
+						code,
+						price,
+						stock,
+						category
+					}
+				),
+				message: 'Error trying to create product.',
+				code: EErrors.INVALID_PRODUCT_DATA,
+			}
+		)
+	}
 
 	try 
     {

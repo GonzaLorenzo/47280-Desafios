@@ -5,7 +5,9 @@ import jwt from 'passport-jwt'
 import GithubStrategy from 'passport-github2'
 import userModel from '../models/users.models.js'
 import { createHash, validatePassword } from '../utils/bcrypt.js'
-import cartModel from '../models/carts.models.js'
+import { generateUserErrorInfo } from '../services/errors/info.js'
+import CustomError from '../services/errors/CustomError.js'
+import EErrors from '../services/errors/enum.js'
 
 const LocalStrategy = local.Strategy
 const JWTStrategy = jwt.Strategy
@@ -38,8 +40,29 @@ const initializePassport = () =>
     }))
 
     passport.use('register', new LocalStrategy(
-        {passReqToCallback: true, usernameField: 'email'}, async (req, username, password, done) =>{
+        {passReqToCallback: true, usernameField: 'email'}, async (req, username, password, done) =>
+        {
             const {first_name, last_name, email, age} = req.body
+
+            if(!first_name || !last_name || !email || !age || !password)
+            {
+                CustomError.createError(
+                    {
+                        name: 'User creation error.',
+                        cause: generateUserErrorInfo(
+                            {
+                                first_name,
+                                last_name,
+                                email,
+                                age,
+                                password
+                            }
+                        ),
+                        message: 'Error trying to create user.',
+                        code: EErrors.INVALID_USER_DATA
+                    }
+                )
+            }
 
             try
             {
