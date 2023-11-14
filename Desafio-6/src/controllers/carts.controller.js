@@ -266,7 +266,7 @@ const purchaseCart = async (req, res) =>
 				}
 			)
 			await cartModel.findByIdAndUpdate(cid, { products: [] })
-			res.redirect(`http://localhost:8080/api/tickets/create?amount=${amount}&email=${email}`)
+			res.redirect(`/api/tickets/create?amount=${amount}&email=${email}`)
 		} else {
 			res.status(404).send({ resultado: 'Not Found', message: cart })
 		}
