@@ -62,25 +62,32 @@ const postProduct = async (req, res) =>
 {
 	const { title, description, code, price, stock, category } = req.body
 
-	if(!title || !description || !code || !price || !stock || !category)
+	try
 	{
-		CustomError.createError(
-			{
-				name: 'Product creation error.',
-				cause: generateProductErrorInfo(
-					{
-						title,
-						description,
-						code,
-						price,
-						stock,
-						category
-					}
-				),
-				message: 'Error trying to create product.',
-				code: EErrors.INVALID_PRODUCT_DATA,
-			}
-		)
+		if(!title || !description || !code || !price || !stock || !category)
+		{
+			CustomError.createError(
+				{
+					name: 'Product creation error.',
+					cause: generateProductErrorInfo(
+						{
+							title,
+							description,
+							code,
+							price,
+							stock,
+							category
+						}
+					),
+					message: 'Error trying to create product.',
+					code: EErrors.INVALID_PRODUCT_DATA,
+				}
+			)
+		}
+	}
+	catch(error)
+	{
+		next(error)
 	}
 
 	try 

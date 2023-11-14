@@ -44,24 +44,32 @@ const initializePassport = () =>
         {
             const {first_name, last_name, email, age} = req.body
 
-            if(!first_name || !last_name || !email || !age || !password)
+            try
             {
-                CustomError.createError(
-                    {
-                        name: 'User creation error.',
-                        cause: generateUserErrorInfo(
-                            {
-                                first_name,
-                                last_name,
-                                email,
-                                age,
-                                password
-                            }
-                        ),
-                        message: 'Error trying to create user.',
-                        code: EErrors.INVALID_USER_DATA
-                    }
-                )
+                if(!first_name || !last_name || !email || !age || !password)
+                {
+                    CustomError.createError(
+                        {
+                            name: 'User creation error.',
+                            cause: generateUserErrorInfo(
+                                {
+                                    first_name,
+                                    last_name,
+                                    email,
+                                    age,
+                                    password
+                                }
+                            ),
+                            message: 'Error trying to create user.',
+                            code: EErrors.INVALID_USER_DATA
+                        }
+                    )
+                }
+                next()
+            }
+            catch(error)
+            {
+                next(error)
             }
 
             try
