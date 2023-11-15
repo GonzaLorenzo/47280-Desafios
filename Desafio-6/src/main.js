@@ -16,6 +16,7 @@ import productsModel from './models/products.models.js';
 import userModel from './models/users.models.js';
 import messageModel from './models/messages.models.js';
 import { errorHandler } from './services/errors/enum.js';
+import { addLogger } from './utils/logger.js';
 
 const PORT = 8080
 const app = express()
@@ -45,11 +46,14 @@ app.use(session(
         saveUninitialized: true
     }
 ))
+
 initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
 
 app.use(express.urlencoded({extended: true}))
+app.use(addLogger)
+
 //Handlebars
 app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
