@@ -65,21 +65,19 @@ const initializePassport = () =>
                         }
                     )
                 }
-                next()
-            }
-            catch(error)
-            {
-                next(error)
-            }
 
-            try
-            {
                 const user = await userModel.findOne({ email:username })
 
                 //Ya existe el usuario
                 if(user)
                 {
-                    return done(null, false)
+                    CustomError.createError(
+                    {
+                        name: 'User creation error.',
+                        cause: 'User alredy exists.',
+                        message: 'Error Trying to create user.',
+                        code: EErrors.INVALID_USER_DATA
+                    })
                 }
                 const hashPassword = createHash(password)
                 const createdUser = await userModel.create(

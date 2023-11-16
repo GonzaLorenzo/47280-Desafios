@@ -27,6 +27,6 @@ export const authToken = (req, res, next) =>
         }
 
         req.user = credentials.user
-        next();
+        next()
     })
 }

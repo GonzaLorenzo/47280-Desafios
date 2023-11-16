@@ -58,7 +58,7 @@ const getProduct = async (req, res) =>
 	}
 }
 
-const postProduct = async (req, res) => 
+const postProduct = async (req, res, next) => 
 {
 	const { title, description, code, price, stock, category } = req.body
 
