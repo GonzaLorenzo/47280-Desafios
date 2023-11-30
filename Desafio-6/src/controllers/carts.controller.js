@@ -8,11 +8,18 @@ const getCarts = async (req, res) =>
 	try 
     {
 		const carts = await cartModel.find().limit(limit)
-		res.status(200).send({ resultado: 'OK', message: carts })
+		if (carts)
+		{
+			res.status(200).send({ resultado: 'OK', message: carts });
+		}
+		else
+		{
+			res.status(404).send({ resultado: 'Carritos no encontrados' });
+		}
 	} 
     catch (error) 
     {
-		res.status(400).send({ error: `Error al consultar carritos: ${error}` })
+		res.status(500).send({ error: `Error al consultar carritos: ${error}` })
 	}
 }
 
@@ -33,7 +40,7 @@ const getCart = async (req, res) =>
 	} 
     catch (error) 
     {
-		res.status(400).send({ error: `Error al consultar carrito: ${error}` })
+		res.status(500).send({ error: `Error al consultar carrito: ${error}` })
 	}
 }
 
@@ -99,7 +106,7 @@ const putProductToCart = async (req, res) =>
 	} 
     catch (error) 
     {
-		res.status(400).send({ error: `Error al crear producto: ${error}` })
+		res.status(500).send({ error: `Error al crear producto: ${error}` })
 	}
 }
 
@@ -140,7 +147,7 @@ const putQuantity = async (req, res) =>
 	} 
     catch (error) 
     {
-		res.status(400).send({ error: `Error al agregar productos: ${error}` })
+		res.status(500).send({ error: `Error al agregar productos: ${error}` })
 	}
 }
 
@@ -179,7 +186,7 @@ const putProductsToCart = async (req, res) =>
 	} 
     catch (error) 
     {
-		res.status(400).send({ error: `Error al agregar productos: ${error}` })
+		res.status(500).send({ error: `Error al agregar productos: ${error}` })
 	}
 }
 
@@ -235,7 +242,7 @@ const deleteProductFromCart = async (req, res) =>
 	} 
     catch (error) 
     {
-		res.status(400).send({ error: `Error al eliminar producto: ${error}` })
+		res.status(500).send({ error: `Error al eliminar producto: ${error}` })
 	}
 }
 
@@ -277,7 +284,7 @@ const purchaseCart = async (req, res) =>
 	}
 	catch (error) 
 	{
-		res.status(400).send({ error: `Error al consultar carrito: ${error}`})
+		res.status(500).send({ error: `Error al consultar carrito: ${error}`})
 	}
 }
 

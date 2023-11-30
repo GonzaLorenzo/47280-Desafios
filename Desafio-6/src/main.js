@@ -17,9 +17,29 @@ import userModel from './models/users.models.js';
 import messageModel from './models/messages.models.js';
 import { errorHandler } from './services/errors/enum.js';
 import { addLogger } from './utils/logger.js';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
+
 
 const PORT = 8080
 const app = express()
+
+const swaggerOptions =
+{
+	definition:
+    {
+		openapi: '3.1.0',
+		info:
+        {
+			title: 'Documentación del curso de Backend',
+			description: 'API Coderhouse Backend',
+		},
+	},
+	apis: [`${__dirname}/docs/**/*.yaml`],
+}
+
+const specs = swaggerJSDoc(swaggerOptions)
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 //Server
 const server = app.listen(PORT, () =>
