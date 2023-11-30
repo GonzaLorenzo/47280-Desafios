@@ -22,7 +22,7 @@ export const passportError = (strategy) =>
     }
 }
 
-export const authorization = (role) =>
+export const authorization = (roles) =>
 {
     return async(req, res, next) =>
     {
@@ -31,9 +31,13 @@ export const authorization = (role) =>
             return res.status(401).send({error: 'User no autorizado'})
         }
 
-        if(req.user.user[0].role != role)
+        const isAuthorized = roles.find(role => role == req.user.user.role)
+
+        if(!isAuthorized)
         {
             return res.status(403).send({error: 'User no tiene los privilegios necesarios'})
         }
+
+        next();
     }
 }

@@ -34,7 +34,7 @@ export const logger = winston.createLogger(
 		}),
 		new winston.transports.File(
         {
-			filename: './logs/errors.log',
+			filename: './src/logs/errors.log',
 			level: 'warning',
 		}),
 	],

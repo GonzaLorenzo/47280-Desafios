@@ -1,6 +1,7 @@
 import 'dotenv/config.js'
 import nodemailer from 'nodemailer';
 import { __dirname } from '../path.js';
+import { logger } from '../utils/logger.js';
 
 let transporter = nodemailer.createTransport(
     {
@@ -41,6 +42,34 @@ const sendEmail = async (req, res) =>
 	res.send({ message: 'Mail enviado', response: resultado })
 }
 
-const mailingController = { sendEmail }
+const sendPasswordRecoveryEmail = (email, recoveryLink) =>
+{
+	const mailOptions =
+    {
+		from: 'Backend47280Test gonzalodlorenzoprueba@gmail.com',
+		to: email,
+		subject: 'Restore password',
+		html:
+        `
+        <div>
+            <h1>Enter this link to restore your password</h1>
+			<p>${recoveryLink}</p>
+        </div>
+        `,
+	}
+	transporter.sendMail(mailOptions, (error, info) =>
+    {
+		if (error)
+        {
+			logger.error(`[ERROR][${new Date().tolocaleDateString()} - ${new Date().tolocaleTimeString()}] An error has occurred: ${error.message}`)
+		} 
+        else
+        {
+			logger.info(`[INFO][${new Date().tolocaleDateString()} - ${new Date().tolocaleTimeString()}] Email sent successfully`)
+		}
+	})
+}
+
+const mailingController = { sendEmail, sendPasswordRecoveryEmail }
 
 export default mailingController

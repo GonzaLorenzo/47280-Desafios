@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from 'passport'
-import { postUser } from "../controllers/users.controller.js";
+import usersController from '../controllers/users.controller.js';
 
 const routerUser = Router()
 
@@ -34,6 +34,10 @@ routerUser.post('/', (req, res, next) =>
     {
         next(error)
     }
-},passport.authenticate('register'), postUser)
+},passport.authenticate('register'), usersController.postUser)
+
+routerUser.post('/recovery', usersController.recoveryPassword)
+
+routerUser.post('/resetpassword/:token', usersController.resetPassword)
 
 export default routerUser

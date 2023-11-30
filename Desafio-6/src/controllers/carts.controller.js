@@ -265,6 +265,10 @@ const purchaseCart = async (req, res) =>
 					}
 				}
 			)
+			if (user.role === 'premium')
+			{
+				amount *= 0.9
+			}
 			await cartModel.findByIdAndUpdate(cid, { products: [] })
 			res.redirect(`/api/tickets/create?amount=${amount}&email=${email}`)
 		} else {
